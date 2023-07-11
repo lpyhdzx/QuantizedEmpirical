@@ -1,0 +1,78 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "1"
+            },
+            // Training PEFT
+            // Training MPO
+            // "args": [
+            //     "--model", "LLaMA-7B",
+            //     "--data_path", "/home/liupeiyu/LLM-Adapters/alpaca_data_cleaned.json",
+            //     "--base_model", "/mnt/data/pyliu/llama-7b-hf",
+            //     "--adapter_name", "mpo",
+            //     "--use_mpo", "after",
+            //     "--tensor_learn",
+            //     "--batch_size", "16",
+            //     "--micro_batch_size", "4",
+            //     "--num_epochs", "3",
+            //     "--learning_rate", "3e-4",
+            //     "--cutoff_len", "256",
+            //     "--val_set_size", "120",
+            //     "--target_modules","['q_proj','gate_proj']",
+            // ]
+            // Training MPO lora
+            "args": [
+                // "--model", "LLaMA-7B",
+                "--data_path", "/home/pyliu/MPO-llama-adapters/alpaca_data_cleaned.json",
+                "--base_model", "/mnt/data/pyliu/llama-65b-hf",
+                "--adapter_name", "gptqlora",
+                // "--load_8bit",
+                // "--tensor_learn",
+                "--batch_size", "16",
+                "--micro_batch_size", "4",
+                "--num_epochs", "3",
+                "--learning_rate", "3e-4",
+                "--cutoff_len", "256",
+                "--val_set_size", "120",
+                // "--target_modules","['q_proj','k_proj','v_proj','o_proj','up_proj','gate_proj','down_proj']",
+                "--target_modules","['q_proj','v_proj']",
+                // "--quant_checkpoint","/mnt/data/zkliu/checkpoint/quantized/llama-7b-4bit",
+                "--quant_checkpoint","/mnt/data/pyliu/gptq_checkpoints/llama-65b-4bit-formulate",
+                "--bits","4"
+                // "--lora_mpo"
+            ]
+            // evaluate
+            // "args": [
+            //     "--model", "LLaMA-7B",
+            //     "--dataset", "gsm8k",
+            //     "--adapter", "mpo",
+            //     "--trainable_weights", "/mnt/liupeiyu/checkpoint/llm_adapters/math_mpo_qv_peft",
+            //     "--base_model", "yahma/llama-7b-hf",
+            // ]   
+            // gsm8k test
+            // "args": [
+            //     "--base_model", "/mnt/data/pyliu/llama-7b-hf",
+            //     // "--quant_path", "/mnt/data/pyliu/gptq_checkpoints/llama7b-2bit_nooutlier.pt",
+            //     "--quant_path", "/mnt/data/pyliu/gptq_checkpoints/llama7b-4bit/llama7b-4bit.pt",
+            //     "--num_bits", "4",
+            //     // "--quant_path", "/mnt/data/pyliu/gptq_checkpoints/llama7b-4bit/llama7b-4bit.pt",
+            //     // "--num_bits", "4",
+            //     "--output_file", "gsm8k_fewshot/test.json",
+            //     "--exclude", "none,",
+            //     // "--input_file", "test.json"
+            // ],
+            
+        }
+    ]
+}
