@@ -9,7 +9,7 @@ from datasets import load_dataset
 from typing import List, Optional, Union
 import sys
 import gc
-sys.path = ['/home/pyliu/projects/MPO-llama-adapters'] + sys.path
+
 """
 Unused imports:
 import torch.nn as nn
@@ -19,8 +19,6 @@ from peft import (  # noqa: E402
     GPTQLoraConfig,
     LoraConfig,
     BottleneckConfig,
-    MPOConfig,
-    FFTConfig,
     get_peft_model,
     get_peft_model_state_dict,
     prepare_model_for_int8_training,
