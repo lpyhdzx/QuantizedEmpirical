@@ -1,9 +1,7 @@
-accelerate
+accelerate==0.19.0
 appdirs
-bitsandbytes
-black
-black[jupyter]
-datasets
-fire
-git+https://github.com/huggingface/transformers.git
-gradio
+bitsandbytes==0.38.1
+datasets==2.12.0
+fire==0.5.0
+transformers==4.28.1
+torch==2.0.1

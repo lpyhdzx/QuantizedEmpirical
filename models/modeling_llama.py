@@ -40,8 +40,6 @@ from transformers.utils import (
     replace_return_docstrings,
 )
 from .configuration_llama import LlamaConfig
-from compress_tools.Matrix2MPO_beta import MPO
-from compress_tools.MPOtorch import LinearDecomMPO
 import bitsandbytes as bnb
 
 SHAPE_CONFIG = {
@@ -77,49 +75,6 @@ def convert_linear_to_bnb(float_linear):
     if isinstance(float_linear, nn.Linear) and float_linear.bias is not None:
         new_layer._parameters["bias"] = float_linear.bias
     return new_layer
-def determine_weight_across_layers(model):
-        choose_name = set()
-        # 'mlp.gate_proj.weight','mlp.down_proj.weight','mlp.up_proj.weight',# mlp 
-        for target_name in [
-            'self_attn.q_proj.weight', 'self_attn.v_proj.weight','self_attn.k_proj.weight','self_attn.o_proj.weight'
-            ]:
-            target_group = {k:v for k,v in model.named_parameters() if (target_name in k) and ("bias" not in k)}
-            choose_name.update(target_group)
-        return choose_name
-def _determine_type(name):
-        if 'gate_proj' in name:
-            return 'gate_proj'
-        elif 'down_proj' in name:
-            return 'down_proj'
-        elif 'up_proj' in name:
-            return 'up_proj'
-        elif 'self_attn.q_proj' in name or 'self_attn.k_proj' in name or 'self_attn.v_proj' in name or 'self_attn.o_proj' in name:
-            return 'attention'
-def fine_grained_decomposition(model, tensor_learn=False):
-    choose_name = determine_weight_across_layers(model)
-    for module_name, params in tqdm(model.named_parameters()):
-        print(module_name)
-        if module_name in choose_name:
-            findname = re.findall(r"\.\d+",module_name)
-            for ind in findname:
-                module_name = module_name.replace(f"{ind}",f"[{ind[1:]}]")
-                module_name = module_name.replace(".weight","")
-            layer_module = eval("model."+module_name)
-
-            type_name = _determine_type(module_name)
-            FINE_INPUT_SHAPE, FINE_OUTPUT_SHAPE = SHAPE_CONFIG[type_name]
-            mpo = MPO(FINE_INPUT_SHAPE, FINE_OUTPUT_SHAPE, 100000)
-            device = layer_module.weight.device
-            dtype = layer_module.weight.data.dtype
-            mpo_tensor_set, _, _ = mpo.matrix2mpo(layer_module.weight.to(torch.float32).cpu().detach().numpy()) # .query
-            bias = layer_module.bias
-
-            obj_name, weight_name = module_name.rsplit('.',1)
-            obj = eval("model."+obj_name)
-            setattr(obj, weight_name, LinearDecomMPO(FINE_INPUT_SHAPE, FINE_OUTPUT_SHAPE, 10000, tensor_learn=tensor_learn))
-            layer_module_new = eval("model."+module_name)
-            layer_module_new.from_pretrained(None, None, mpo_tensor_set, dtype, bias=bias, device=device)
-    return model
 
 
 logger = logging.get_logger(__name__)
@@ -741,13 +696,6 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
         self.model = LlamaModel(config)
 
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-        # # # use MPO
-        # if config.use_mpo == "before":
-        #     print("before init")
-        #     print(f"MPO total: {len(nn.utils.parameters_to_vector(self.model.parameters()))}")
-        #     self.model = fine_grained_decomposition(self.model, tensor_learn=config.tensor_learn)
-        #     print(f"MPO total: {len(nn.utils.parameters_to_vector(self.model.parameters()))}")
-        # Initialize weights and apply final processing
         self.post_init()
 
     def get_input_embeddings(self):
