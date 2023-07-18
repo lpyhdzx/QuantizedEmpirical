@@ -1,5 +1,7 @@
 # Do Emergent Abilities Exist in Quantized Large Language Models: An Empirical Study
 
+This is the implementation of the [paper](https://arxiv.org/abs/2307.08072):
+> Peiyu Liu, Zikang Liu, Ze-Feng Gao, Dawei Gao, Wayne Xin Zhao, Yaliang Li, Bolin Ding, Ji-Rong Wen. Do Emergent Abilities Exist in Quantized Large Language Models: An Empirical Study
 *Updates*:
 
 * [July 15] We release the code especially for fine-tuning LLaMA-65B within a single A100 GPU.
