@@ -11,10 +11,8 @@ src/peft.egg-info/requires.txt
 src/peft.egg-info/top_level.txt
 src/peft/tuners/__init__.py
 src/peft/tuners/bottleneck.py
-src/peft/tuners/full_tuning.py
 src/peft/tuners/gptqlora.py
 src/peft/tuners/lora.py
-src/peft/tuners/mpop.py
 src/peft/tuners/p_tuning.py
 src/peft/tuners/prefix_tuning.py
 src/peft/tuners/prompt_tuning.py

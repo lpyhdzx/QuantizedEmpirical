@@ -26,8 +26,7 @@ from peft import (  # noqa: E402
 )
 from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer, LlamaConfig, AutoModel  # noqa: F402
 from models import LlamaForCausalLM
-from compress_tools.trainer import Trainer
-from models.modeling_llama import fine_grained_decomposition
+from transformers import Trainer
 import copy
 from peft import PrefixTuningConfig
 import numpy as np
