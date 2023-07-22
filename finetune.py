@@ -25,7 +25,6 @@ from peft import (  # noqa: E402
     set_peft_model_state_dict,
 )
 from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer, LlamaConfig, AutoModel  # noqa: F402
-# from models.modeling_llama2 import LlamaForCausalLM
 from transformers import LlamaForCausalLM
 from transformers import Trainer
 import copy
