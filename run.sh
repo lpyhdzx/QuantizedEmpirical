@@ -1,10 +1,10 @@
 # training
-base_dir=/home/pyliu/projects/git_pro/EmpiricalStudy
+base_dir=/home/pyliu/projects/git_pro/QuantizedEmpirical
 export OMP_NUM_THREADS=20
 set -x
 
 function finetune_multi(){
-    WORLD_SIZE=8 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node=8 --master_port=3225 finetune.py \
+    WORLD_SIZE=4 CUDA_VISIBLE_DEVICES=4,5,6,7 torchrun --nproc_per_node=4 --master_port=3229 finetune.py \
         --base_model '/mnt/data/pyliu/llama-7b-hf' \
         --data_path $2 \
         --output_dir /mnt/data/pyliu/checkpoint_pyliu/$1 \
@@ -30,4 +30,6 @@ function finetune_multi(){
 # finetune_multi alpaca_gptqlora_65B_2bit $base_dir/alpaca_data_cleaned.json --adapter_name=gptqlora\ --target_modules="['q_proj','k_proj','v_proj','o_proj','up_proj','gate_proj','down_proj']"\ --base_model=/mnt/data/pyliu/llama-65b-hf\ --quant_checkpoint="/mnt/data/pyliu/gptq_checkpoints/llama65b-2bit-formulate"\ --use_gradient_checkpointing\ --bits=2
 
 # 70B llama2
-finetune_multi alpaca_gptqlora_70B_4bit $base_dir/alpaca_data_cleaned.json --adapter_name=gptqlora\ --target_modules="['q_proj','k_proj','v_proj','o_proj','up_proj','gate_proj','down_proj']"\ --base_model=/mnt/data/pyliu/llama2/llama2_70B_hf\ --quant_checkpoint="/mnt/data/pyliu/gptq_checkpoints/llama65b-2bit-formulate"\ --use_gradient_checkpointing\ --bits=4
+finetune_multi alpaca_gptqlora_70B_4bit $base_dir/alpaca_data_cleaned.json --adapter_name=gptqlora\ --target_modules="['q_proj','k_proj','v_proj','o_proj','up_proj','gate_proj','down_proj']"\ --base_model=/mnt/data/pyliu/llama2/llama2_70B_hf\ --quant_checkpoint="/mnt/data/pyliu/gptq_checkpoints/llama2-70b-4bit-formulate"\ --use_gradient_checkpointing\ --bits=4
+
+finetune_multi alpaca_gptqlora_70B_2bit $base_dir/alpaca_data_cleaned.json --adapter_name=gptqlora\ --target_modules="['q_proj','k_proj','v_proj','o_proj','up_proj','gate_proj','down_proj']"\ --base_model=/mnt/data/pyliu/llama2/llama2_70B_hf\ --quant_checkpoint="/mnt/data/pyliu/gptq_checkpoints/llama2-70b-2bit-formulate"\ --use_gradient_checkpointing\ --bits=2

@@ -4,6 +4,7 @@ This is the implementation of the [paper](https://arxiv.org/abs/2307.08072):
 > Peiyu Liu, Zikang Liu, Ze-Feng Gao, Dawei Gao, Wayne Xin Zhao, Yaliang Li, Bolin Ding, Ji-Rong Wen. Do Emergent Abilities Exist in Quantized Large Language Models: An Empirical Study
 *Updates*:
 
+* [July 22] We update support for [LLaMA-2](https://ai.meta.com/research/publications/llama-2-open-foundation-and-fine-tuned-chat-models/) fine-tuning.
 * [July 15] We release the code especially for fine-tuning LLaMA-65B within a single A100 GPU.
 
 ---
@@ -73,6 +74,8 @@ Hardware: 2*A100 GPUs
 | LLaMA-13B-GPTQLoRA    | 4      | 31.3M                | 7.0GB         |     ~6h          | 
 | LLaMA-65B-GPTQLoRA    | 2      | 99.9M                | 17.8GB        |     ~24h         | 
 | LLaMA-65B-GPTQLoRA    | 4      | 99.9M                | 32.7GB        |     ~24h         | 
+| LLaMA-2-70B-GPTQLoRA  | 2      | 103.5M               | 18.5GB        |     ~24h         | 
+| LLaMA-2-70B-GPTQLoRA  | 4      | 103.5M               | 34.5GB       |     ~24h         | 
 
 # Acknowledgements
 Thankes to the powerful PTQ project [GPTQ-for-LLaMa](https://github.com/qwopqwop200/GPTQ-for-LLaMa).
