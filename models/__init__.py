@@ -39,7 +39,7 @@ try:
 except OptionalDependencyNotAvailable:
     pass
 else:
-    _import_structure["modeling_llama"] = [
+    _import_structure["modeling_llama2"] = [
         "LlamaForCausalLM",
         "LlamaModel",
         "LlamaPreTrainedModel",
@@ -63,7 +63,7 @@ if TYPE_CHECKING:
     except OptionalDependencyNotAvailable:
         pass
     else:
-        from .modeling_llama import (
+        from .modeling_llama2 import (
             LlamaForCausalLM,
             LlamaModel,
             LlamaPreTrainedModel,

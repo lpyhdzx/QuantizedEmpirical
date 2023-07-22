@@ -25,7 +25,8 @@ from peft import (  # noqa: E402
     set_peft_model_state_dict,
 )
 from transformers import AutoModelForCausalLM, AutoTokenizer, LlamaTokenizer, LlamaConfig, AutoModel  # noqa: F402
-from models import LlamaForCausalLM
+# from models.modeling_llama2 import LlamaForCausalLM
+from transformers import LlamaForCausalLM
 from transformers import Trainer
 import copy
 from peft import PrefixTuningConfig
@@ -55,10 +56,10 @@ module_dic = {
     'down_proj': "layers.{}.mlp.down_proj",
     'up_proj': "layers.{}.mlp.up_proj",
 }
-DEFAULT_PAD_TOKEN = "[PAD]"
-DEFAULT_EOS_TOKEN = "</s>"
-DEFAULT_BOS_TOKEN = "<s>"
-DEFAULT_UNK_TOKEN = "[UNK]"
+# DEFAULT_PAD_TOKEN = "[PAD]"
+# DEFAULT_EOS_TOKEN = "</s>"
+# DEFAULT_BOS_TOKEN = "<s>"
+# DEFAULT_UNK_TOKEN = "<unk>"
 def train(
         # model/data params
         base_model: str = "",  # the only required argument
@@ -182,17 +183,6 @@ def train(
             trust_remote_code=True,
         )
     elif adapter_name == 'gptqlora':
-        def find_layers(module, layers=(torch.nn.Conv2d, torch.nn.Linear), name="", exclude=""):
-            if type(module) in layers: # noattn quant
-                return {name: module}
-            res = {}
-            for name1, child in module.named_children():
-                res.update(
-                    find_layers(
-                        child, layers=layers, name=name + "." + name1 if name != "" else name1, exclude=exclude
-                    )
-                )
-            return res
 
         with init_empty_weights():
             model = LlamaForCausalLM.from_pretrained(base_model,torch_dtype=torch.float16)
@@ -231,13 +221,13 @@ def train(
         tokenizer = LlamaTokenizer.from_pretrained(base_model, add_eos_token=True)
     else:
         tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True, add_eos_token=True)
-    tokenizer.add_special_tokens(
-        {
-            "eos_token": DEFAULT_EOS_TOKEN,
-            "bos_token": DEFAULT_BOS_TOKEN,
-            "unk_token": DEFAULT_UNK_TOKEN,
-        }
-    )
+    # tokenizer.add_special_tokens(
+    #     {
+    #         "eos_token": DEFAULT_EOS_TOKEN,
+    #         "bos_token": DEFAULT_BOS_TOKEN,
+    #         "unk_token": DEFAULT_UNK_TOKEN,
+    #     }
+    # )
 
     tokenizer.pad_token_id = (
         0  # unk. we want this to be different from the eos token
@@ -423,6 +413,7 @@ def train(
             state_dict = trainer.model.state_dict()
             cpu_state_dict = {key: value.cpu() for key, value in state_dict.items()}
             del state_dict
+            torch.save(cpu_state_dict, os.path.join(output_dir, "pytorch_model.bin"))
             trainer._save(output_dir, state_dict=cpu_state_dict)  # noqa
         safe_save_model_for_hf_trainer(trainer, output_dir)
     else:

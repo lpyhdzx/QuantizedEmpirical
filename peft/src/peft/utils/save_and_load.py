@@ -29,7 +29,7 @@ def get_peft_model_state_dict(model, state_dict=None):
     """
     if state_dict is None:
         state_dict = model.state_dict()
-    if model.peft_config.peft_type == PeftType.LORA:
+    if model.peft_config.peft_type in [PeftType.LORA, PeftType.GPTQLORA]:
         # to_return = lora_state_dict(model, bias=model.peft_config.bias)
         # adapted from `https://github.com/microsoft/LoRA/blob/main/loralib/utils.py`
         # to directly with the state dict which is necessary when using DeepSpeed or FSDP
@@ -48,23 +48,23 @@ def get_peft_model_state_dict(model, state_dict=None):
                         to_return[bias_name] = state_dict[bias_name]
         else:
             raise NotImplementedError
-    elif model.peft_config.peft_type == PeftType.MPO:
-        # to_return = lora_state_dict(model, bias=model.peft_config.bias)
-        # adapted from `https://github.com/microsoft/LoRA/blob/main/loralib/utils.py`
-        # to directly with the state dict which is necessary when using DeepSpeed or FSDP
-        bias = model.peft_config.bias
-        if bias == "none":
-            to_return = {k: state_dict[k] for k in state_dict if "tensor_set.0" in k}
-            to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.1" in k})
-            to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.3" in k})
-            to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.4" in k})
-        elif bias == 'mpo_only':
-            to_return = {k: state_dict[k] for k in state_dict if "tensor_set.0" in k}
-            to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.1" in k})
-            to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.3" in k})
-            to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.4" in k})
-            for module in model.peft_config.target_modules:
-                to_return.update({k: state_dict[k] for k in state_dict if module in k and "bias" in k})
+    # elif model.peft_config.peft_type == PeftType.MPO:
+    #     # to_return = lora_state_dict(model, bias=model.peft_config.bias)
+    #     # adapted from `https://github.com/microsoft/LoRA/blob/main/loralib/utils.py`
+    #     # to directly with the state dict which is necessary when using DeepSpeed or FSDP
+    #     bias = model.peft_config.bias
+    #     if bias == "none":
+    #         to_return = {k: state_dict[k] for k in state_dict if "tensor_set.0" in k}
+    #         to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.1" in k})
+    #         to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.3" in k})
+    #         to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.4" in k})
+    #     elif bias == 'mpo_only':
+    #         to_return = {k: state_dict[k] for k in state_dict if "tensor_set.0" in k}
+    #         to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.1" in k})
+    #         to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.3" in k})
+    #         to_return.update({k: state_dict[k] for k in state_dict if "tensor_set.4" in k})
+    #         for module in model.peft_config.target_modules:
+    #             to_return.update({k: state_dict[k] for k in state_dict if module in k and "bias" in k})
         # elif bias == "all":
         #     to_return = {k: state_dict[k] for k in state_dict if "tensor_set" in k or "bias" in k}
         # elif bias == "lora_only":
@@ -75,11 +75,11 @@ def get_peft_model_state_dict(model, state_dict=None):
         #             bias_name = k.split("lora_")[0] + "bias"
         #             if bias_name in state_dict:
         #                 to_return[bias_name] = state_dict[bias_name]
-        else:
-            raise NotImplementedError
-    elif model.peft_config.peft_type == PeftType.FFT:
-        to_return = {k: state_dict[k] for k in state_dict if "q_proj" in k}
-        to_return.update({k: state_dict[k] for k in state_dict if "v_proj" in k})
+        # else:
+        #     raise NotImplementedError
+    # elif model.peft_config.peft_type == PeftType.FFT:
+    #     to_return = {k: state_dict[k] for k in state_dict if "q_proj" in k}
+    #     to_return.update({k: state_dict[k] for k in state_dict if "v_proj" in k})
 
     elif model.peft_config.peft_type == PeftType.BOTTLENECK:
         # return the state dict of the model with Bottleneck adapters
@@ -122,7 +122,7 @@ def set_peft_model_state_dict(model, peft_model_state_dict):
     """
 
     model.load_state_dict(peft_model_state_dict, strict=False)
-    if model.peft_config.peft_type != PeftType.LORA and model.peft_config.peft_type != PeftType.BOTTLENECK and model.peft_config.peft_type != PeftType.MPO and model.peft_config.peft_type != PeftType.FFT:
+    if model.peft_config.peft_type != PeftType.LORA and model.peft_config.peft_type != PeftType.BOTTLENECK and model.peft_config.peft_type != PeftType.GPTQLORA:
         model.prompt_encoder.embedding.load_state_dict(
             {"weight": peft_model_state_dict["prompt_embeddings"]}, strict=True
         )
